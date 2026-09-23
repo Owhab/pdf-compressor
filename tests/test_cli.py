@@ -43,6 +43,15 @@ def test_cli_wrong_password_exits_nonzero(make_pdf_with_image, capsys):
     assert "wrong password" in capsys.readouterr().err
 
 
+def test_cli_rejects_rasterize_with_lossless(make_pdf_with_image):
+    input_path = make_pdf_with_image("scan.pdf", pixel_size=(2550, 3300))
+
+    import pytest
+
+    with pytest.raises(SystemExit):
+        main([str(input_path), "--rasterize", "--profile", "lossless"])
+
+
 def test_cli_batch_on_directory(make_pdf_with_image, tmp_path):
     make_pdf_with_image("docs/scan.pdf", pixel_size=(2550, 3300))
 

@@ -49,6 +49,7 @@ def compress_batch(
     in_place: bool,
     password: str | None,
     report: Callable[[CompressionResult], None],
+    rasterize: bool = False,
 ) -> int:
     """Run Compression over every PDF Document under `root`.
 
@@ -70,7 +71,9 @@ def compress_batch(
         doc_password = _resolve_password(password, pdf_path)
 
         try:
-            result = compress_document(pdf_path, output_path, profile, password=doc_password)
+            result = compress_document(
+                pdf_path, output_path, profile, password=doc_password, rasterize=rasterize
+            )
         except pikepdf.PasswordError:
             print(f"{pdf_path}: wrong password, skipped")
             failures.append(pdf_path)

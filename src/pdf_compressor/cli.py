@@ -50,6 +50,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--jpeg-quality", type=int, default=None, help="JPEG quality 1-95 (only with --profile custom)")
     parser.add_argument("--in-place", action="store_true", help="Overwrite the input instead of writing a new file")
     parser.add_argument("--password", default=None, help="Password for an encrypted PDF Document (prompted if omitted and needed)")
+    parser.add_argument(
+        "--rasterize",
+        action="store_true",
+        help=(
+            "Render every page (vector, text, and raster content alike) to a single image at the "
+            "profile's target DPI, discarding the original content. For PDFs where the bulk of the "
+            "size isn't in raster images (e.g. outlined-glyph text), this is the only way to shrink "
+            "them meaningfully — but the output text is no longer selectable or searchable. "
+            "Not compatible with --profile lossless."
+        ),
+    )
     return parser
 
 
@@ -59,14 +70,24 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.profile != "custom" and (args.dpi is not None or args.jpeg_quality is not None):
         parser.error("--dpi/--jpeg-quality only apply with --profile custom")
+    if args.rasterize and args.profile == "lossless":
+        parser.error("--rasterize isn't compatible with --profile lossless (rasterizing is inherently lossy)")
 
     profile = resolve_profile(args.profile, dpi=args.dpi, jpeg_quality=args.jpeg_quality)
+
+    if args.rasterize:
+        print("Rasterizing pages: output text will no longer be selectable or searchable.")
 
     if args.input.is_dir():
         if args.output is not None:
             parser.error("-o/--output isn't supported for a directory input; batch output goes to compressed/")
         return compress_batch(
-            args.input, profile, in_place=args.in_place, password=args.password, report=_report_result
+            args.input,
+            profile,
+            in_place=args.in_place,
+            password=args.password,
+            report=_report_result,
+            rasterize=args.rasterize,
         )
 
     if not args.input.is_file():
@@ -77,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
     password = _resolve_password(args.password, args.input)
 
     try:
-        result = compress_document(args.input, output_path, profile, password=password)
+        result = compress_document(args.input, output_path, profile, password=password, rasterize=args.rasterize)
     except pikepdf.PasswordError:
         print(f"{args.input}: wrong password", file=sys.stderr)
         return 1

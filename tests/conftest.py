@@ -83,6 +83,40 @@ def make_pdf_with_image(tmp_path):
     return _factory
 
 
+def _make_bloated_vector_pdf(path: Path) -> None:
+    """Build a one-page PDF whose content is thousands of tiny, distinctly
+    colored vector fill operators — a continuous-tone image traced into
+    vector shapes rather than embedded as a raster Image, a real pathology
+    some PDF generators produce. Flate compresses this poorly (each fill
+    has a near-unique color triple); rasterizing to JPEG is smaller.
+    """
+    import random
+
+    rng = random.Random(7)
+    pdf = pikepdf.Pdf.new()
+    page = pdf.add_blank_page(page_size=(300, 400))
+    ops = []
+    for x in range(0, 300, 2):
+        for y in range(0, 400, 2):
+            r, g, b = rng.random(), rng.random(), rng.random()
+            ops.append(f"{r:.3f} {g:.3f} {b:.3f} rg {x} {y} 2 2 re f")
+    content = "\n".join(ops).encode()
+    page.Contents = pdf.make_stream(content)
+    pdf.save(path)
+    pdf.close()
+
+
+@pytest.fixture
+def make_bloated_vector_pdf(tmp_path):
+    def _factory(name: str = "bloated.pdf") -> Path:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _make_bloated_vector_pdf(path)
+        return path
+
+    return _factory
+
+
 @pytest.fixture
 def make_text_pdf(tmp_path):
     def _factory(name: str = "text.pdf") -> Path:

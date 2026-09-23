@@ -27,3 +27,7 @@ _Avoid_: metadata (metadata is itself compressible/strippable under a Lossless C
 **Batch Job**:
 A Compression run over multiple PDF Documents (a directory) in a single CLI invocation.
 _Avoid_: bulk job, batch process
+
+**Rasterization**:
+An explicit, opt-in Compression step (`--rasterize`) that renders each page's entire content — Raster and Vector/Text alike — to a single image at the Compression Profile's target DPI, discarding the original content. Exists for PDF Documents where the bulk of the size isn't in Raster content (e.g. text rendered as outlined glyph paths instead of real fonts), where no other technique yields meaningful size reduction. Trades away text selectability/searchability for size, so it's never applied automatically and is incompatible with the Lossless Compression Profile.
+_Avoid_: flattening, image conversion
