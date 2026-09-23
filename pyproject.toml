@@ -1,0 +1,22 @@
+[project]
+name = "pdf-compressor"
+version = "0.1.0"
+description = "Local CLI that compresses PDF file size without compromising document quality."
+requires-python = ">=3.10"
+dependencies = [
+    "pikepdf>=9",
+    "Pillow>=10",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+pdf-compress = "pdf_compressor.cli:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
