@@ -15,6 +15,7 @@ import pikepdf
 from .profiles import CompressionProfile
 from .raster import compress_page_images
 from .rasterize import rasterize_document
+from .strip import strip_private_page_data
 
 
 @dataclass
@@ -75,6 +76,8 @@ def compress_document(
             for page in pdf.pages:
                 stats = compress_page_images(pdf, page, profile.target_dpi, profile.jpeg_quality)
                 images_downsampled += stats.images_downsampled
+
+        strip_private_page_data(pdf)
 
         for page in pdf.pages:
             page.remove_unreferenced_resources()

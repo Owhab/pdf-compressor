@@ -13,7 +13,7 @@ The operation of reducing a PDF Document's file size per its Compression Profile
 _Avoid_: optimization, shrinking
 
 **Compression Profile**:
-The quality target controlling how aggressively content is recompressed: **Lossless** (strips only redundant data — duplicate objects, unused fonts, metadata — zero pixel/text degradation), **Visually Lossless** (default; lossy recompression, e.g. image re-encoding and DPI downsampling, tuned to be imperceptible at normal viewing/printing size), or **Custom** (user-specified parameters overriding the Visually Lossless defaults).
+The quality target controlling how aggressively content is recompressed: **Lossless** (strips only redundant data — duplicate objects, unused fonts, metadata, application-private page data — zero pixel/text degradation), **Visually Lossless** (default; lossy recompression, e.g. image re-encoding and DPI downsampling, tuned to be imperceptible at normal viewing/printing size), or **Custom** (user-specified parameters overriding the Visually Lossless defaults). Application-private page data (e.g. Adobe Illustrator's round-trip editing data) is stripped under every Compression Profile, including Lossless — it's inert for viewing/printing/reading, so removing it isn't a quality trade-off at all.
 _Avoid_: quality setting, compression level
 
 **Content Profile**:
